@@ -1,4 +1,4 @@
-﻿ using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 namespace Revit2025API
@@ -9,27 +9,16 @@ namespace Revit2025API
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
-            ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
-            Autodesk.Revit.UI.TaskDialog.Show("Revit", "Số lượng đối tượng được chọn: " + selectedIds.Count.ToString());
-            ICollection<ElementId> selectedWallIds = new List<ElementId>();
-            foreach (ElementId id in selectedIds)
-            {
-                Element elements1 = uidoc.Document.GetElement(id);
-                if (elements1 is Wall)
-                {
-                    selectedWallIds.Add(id);
-                }
-            }
-            // Set the created element set as current select element set.
-            uidoc.Selection.SetElementIds(selectedWallIds);
-            if (0 != selectedWallIds.Count)
-            {
-                Autodesk.Revit.UI. TaskDialog.Show("Revit", selectedWallIds.Count.ToString() + " Đối tượng Tường đã được chọn!");
-            }
-            else
-            {
-                Autodesk.Revit.UI.TaskDialog.Show("Revit", "Không có đối tượng tường nào được chọn!");
-            }
+            XYZ point1 = uidoc.Selection.PickPoint();
+            XYZ point2 = uidoc.Selection.PickPoint();
+            XYZ point3 = uidoc.Selection.PickPoint();
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(point1.ToString());
+            sb.AppendLine(point2.ToString());
+            sb.AppendLine(point3.ToString());
+
+            MessageBox.Show("Bạn đã lựa chọn các điểm points:\n" + sb.ToString());
             return Result.Succeeded;
         }
     }
