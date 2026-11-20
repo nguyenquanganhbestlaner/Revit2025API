@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Text;
+using System.Windows.Forms;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 namespace Revit2025API
@@ -9,16 +10,23 @@ namespace Revit2025API
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
-            XYZ point1 = uidoc.Selection.PickPoint();
-            XYZ point2 = uidoc.Selection.PickPoint();
-            XYZ point3 = uidoc.Selection.PickPoint();
+            Document doc = uidoc.Document;
 
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(point1.ToString());
-            sb.AppendLine(point2.ToString());
-            sb.AppendLine(point3.ToString());
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
 
-            MessageBox.Show("Bạn đã lựa chọn các điểm points:\n" + sb.ToString());
+            ElementCategoryFilter filter = new ElementCategoryFilter(BuiltInCategory.OST_StructuralColumns);
+
+            IList<Element> columnList = collector.WherePasses(filter).WhereElementIsNotElementType().ToElements();
+            StringBuilder output = new StringBuilder("Tất cả các Structural Column trong BIM model :\r\n");
+            foreach (Element elem in columnList)
+            {
+                FamilyInstance familyInstance = elem as FamilyInstance;
+                FamilySymbol familySymbol = familyInstance.Symbol;
+                Family family = familySymbol.Family;
+                string elemName = "Category:" + elem.Category.Name + ", Family:" + family.Name + ", Name:" + elem.Name + "\r\n";
+                output.Append(elemName);
+            }
+            MessageBox.Show(output.ToString());
             return Result.Succeeded;
         }
     }
